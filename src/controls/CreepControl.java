@@ -52,19 +52,18 @@ public class CreepControl extends AbstractControl {
 
         if (creepPath != null) {
             if (spatial.getLocalTranslation().getX() > creepPath.get(pathIndex).getCenter().getX() - 0.5f && spatial.getLocalTranslation().getX() < spatial.getLocalTranslation().getX() + 0.5f
-                    && spatial.getLocalTranslation().getY() > creepPath.get(pathIndex).getCenter().getY() - 0.5f && spatial.getLocalTranslation().getY() < creepPath.get(pathIndex).getCenter().getY() + 0.5f) {
+                    && spatial.getLocalTranslation().getZ() > creepPath.get(pathIndex).getCenter().getY() - 0.5f && spatial.getLocalTranslation().getZ() < creepPath.get(pathIndex).getCenter().getY() + 0.5f) {
                 pathIndex++;
+                System.out.println("Increasing!");
             }
          
             Vector3f direction = new Vector3f(creepPath.get(pathIndex).getCenter().getX() - spatial.getLocalTranslation().getX(), 0, creepPath.get(pathIndex).getCenter().getX() + spatial.getLocalTranslation().getZ());
             direction.normalizeLocal();
-            System.out.println("X: " + direction.getX() + "Z: " + direction.getZ() );
+            //System.out.println("X: " + direction.getX() + "Z: " + direction.getZ() );
             
 
-            spatial.setLocalTranslation(spatial.getLocalTranslation().add(creepPath.get(pathIndex).getCenter().normalize().mult(0.3f)));
+            spatial.setLocalTranslation(spatial.getLocalTranslation().add(creepPath.get(pathIndex).getCenter().normalize().mult(0.05f)));
         }
-
-
     }
 
     @Override

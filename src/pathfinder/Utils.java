@@ -17,6 +17,8 @@ public class Utils {
     }
 
     public static int[] calculateGrid(Vector3f center) {
-        return new int[]{(int) (center.getX() + 80 - 0.5), (int) (center.getZ() + 50 + 0.5)};
+        return new int[]{Math.round(center.getX() + 80f - 0.5f), Math.round(center.getZ() + 50f + 0.5f)};
     }
+    
+    
 }

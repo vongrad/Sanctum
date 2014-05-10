@@ -2,6 +2,7 @@ package mygame;
 
 import gameStates.GameState;
 import com.jme3.app.SimpleApplication;
+import com.jme3.font.BitmapText;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
@@ -25,10 +26,10 @@ public class Main extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
-        
+        initCrossHairs();
         GameState gameState = new GameState();
         stateManager.attach(gameState);
-        
+
         flyCam.setMoveSpeed(30);
         cam.setLocation(new Vector3f(0.0f, 20.0f, 0.0f));
     }
@@ -36,6 +37,16 @@ public class Main extends SimpleApplication {
     @Override
     public void simpleUpdate(float tpf) {
         //TODO: add update code
+    }
+
+    protected void initCrossHairs() {
+        setDisplayStatView(false);
+        guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
+        BitmapText ch = new BitmapText(guiFont, false);
+        ch.setSize(guiFont.getCharSet().getRenderedSize() * 2);
+        ch.setText("+");
+        ch.setLocalTranslation(settings.getWidth() / 2 - ch.getLineWidth() / 2, settings.getHeight() / 2 + ch.getLineHeight() / 2, 0);
+        guiNode.attachChild(ch);
     }
 
     @Override

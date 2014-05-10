@@ -10,6 +10,10 @@ import com.jme3.app.state.AbstractAppState;
 import com.jme3.app.state.AppStateManager;
 import com.jme3.asset.AssetManager;
 import com.jme3.collision.CollisionResults;
+import com.jme3.input.MouseInput;
+import com.jme3.input.controls.ActionListener;
+import com.jme3.input.controls.MouseButtonTrigger;
+import com.jme3.input.controls.Trigger;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
@@ -20,6 +24,7 @@ import com.jme3.renderer.Camera;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.shape.Box;
+import com.jme3.scene.shape.Quad;
 import controls.CreepControl;
 import de.lessvoid.nifty.effects.impl.Gradient;
 import java.util.ArrayList;
@@ -28,7 +33,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import pathfinder.Graph;
 import pathfinder.PathFinder;
+import pathfinder.Utils;
 import pathfinder.Vertex;
+import sun.misc.Queue;
 
 /**
  *
@@ -36,7 +43,6 @@ import pathfinder.Vertex;
  */
 public class GameState extends AbstractAppState {
 
-  
     private SimpleApplication app;
     private Node rootNode;
     private Camera cam;
@@ -51,18 +57,18 @@ public class GameState extends AbstractAppState {
     private List<Vertex> creepPath;
     private Graph graphBuilder;
     private CreepControl test;
-    
+    private static final Trigger TRIGGER_BUILD = new MouseButtonTrigger(MouseInput.BUTTON_LEFT);
+    private static final String MAPPING_BUILD = "Build";
     private boolean first = true;
+    private Queue obstacleQueue;
 
     @Override
     public void initialize(AppStateManager stateManager, Application app) {
         super.initialize(stateManager, app);
 
-
+        obstacleQueue = new Queue();
 
         thread.start();
-
-
 
         this.app = (SimpleApplication) app;
         this.cam = this.app.getCamera();
@@ -72,23 +78,110 @@ public class GameState extends AbstractAppState {
 
         initLight();
         initConstants();
-
-//        for (int i = 0; i < xBlock * 2; i++) {
-//            for (int j = 0; j < zBlock * 2; j++) {
-//                rootNode.attachChild(generateBox("Test" + i + j, 0.5f, 3.0f, 0.5f, null, ColorRGBA.Orange, graphBuilder.getVertex(i, j).getCenter()));
-//            }
-//        }
-
-
+        initTriggers();
 
         Geometry platform = generateBox("Platform", xBlock * blockSize, 1f, zBlock * blockSize, "Common/MatDefs/Misc/Unshaded.j3md", ColorRGBA.Blue, Vector3f.ZERO);
         Geometry base = generateBox("Base", 3 * blockSize, 3 * blockSize, 5 * blockSize, "Common/MatDefs/Misc/Unshaded.j3md", ColorRGBA.Pink, new Vector3f(basePoint.add(new Vector3f(-blockSize * 3f, 3.0f, 0.0f))));
         generateCreep();
-        //calculatePath();
 
         rootNode.attachChild(platform);
         rootNode.attachChild(base);
+    }
 
+    private void initTriggers() {
+        app.getInputManager().addMapping(MAPPING_BUILD, TRIGGER_BUILD);
+        app.getInputManager().addListener(actionListener, new String[]{MAPPING_BUILD});
+    }
+    private ActionListener actionListener = new ActionListener() {
+        public void onAction(String name, boolean isPressed, float tpf) {
+            if (name.equals(MAPPING_BUILD) && !isPressed) {
+                ray.setOrigin(cam.getLocation());
+                ray.setDirection(cam.getDirection());
+
+                CollisionResults collisionResults = new CollisionResults();
+                rootNode.collideWith(ray, collisionResults);
+
+                if (collisionResults.size() > 0) {
+
+                    //Geometry target = collisionResults.getClosestCollision().getGeometry();
+                    Vector3f contactPoint = collisionResults.getClosestCollision().getContactPoint();
+                    contactPoint.setZ(-contactPoint.getZ());
+                    int[] grid = Utils.calculateGrid(contactPoint);
+                    rootNode.attachChild(generateBox("Obscale", 0.5f, 10f, 0.5f, null, ColorRGBA.Yellow, Utils.calculateCenter(grid[0], grid[1])));
+                }
+            }
+        }
+    };
+
+    private void initLight() {
+        rootNode.addLight(new AmbientLight());
+        DirectionalLight sun = new DirectionalLight();
+        sun.setDirection(new Vector3f(-10.0f, -1.3f, 1.3f));
+        rootNode.addLight(sun);
+    }
+
+    private void initConstants() {
+        spawnPoint = new Vector3f(-xBlock * blockSize, 1.0f, 0.0f);
+        basePoint = new Vector3f(xBlock * blockSize, 1.0f, 0.0f);
+    }
+
+    private Geometry generateBox(String name, float x, float y, float z, String matPath, ColorRGBA color, Vector3f pos) {
+        Box box = new Box(x, y, z);
+        Geometry geom = new Geometry(name, box);
+
+        Material mat;
+
+        if (matPath == null) {
+            mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        } else {
+            mat = new Material(assetManager, matPath);
+        }
+
+        if (color != null) {
+            mat.setColor("Color", color);
+        }
+        geom.setMaterial(mat);
+        geom.setLocalTranslation(pos);
+        return geom;
+    }
+
+    private void generateCreep() {
+        Geometry creep = generateBox("Creep", 1f, 1f, 1f, "Common/MatDefs/Misc/Unshaded.j3md", ColorRGBA.Red, spawnPoint.add(new Vector3f(1.0f, 1.0f, 1.0f)));
+        test = new CreepControl(cam, rootNode, basePoint);
+        creep.addControl(test);
+        rootNode.attachChild(creep);
+    }
+
+    @Override
+    public void update(float tpf) {
+
+        //Draw path and obstacles for testing purposes
+        if (creepPath != null && first) {
+            first = false;
+            for (Vertex vertex : creepPath) {
+                rootNode.attachChild(generateBox("Test", 0.5f, 10, 0.5f, null, ColorRGBA.Orange, vertex.getCenter()));
+
+            }
+            Vertex[][] graph = graphBuilder.getGraph();
+
+            for (int i = 0; i < graph[0].length; i++) {
+                for (int j = 0; j < graph[1].length; j++) {
+                    if (graph[i][j].isObstacle()) {
+                        rootNode.attachChild(generateBox("Obstacle", 0.5f, 10, 0.5f, null, ColorRGBA.Red, graph[i][j].getCenter()));
+                    }
+                }
+            }
+        }
+
+        if (!obstacleQueue.isEmpty()) {
+            try {
+                rootNode.attachChild((Geometry) obstacleQueue.dequeue());
+            } catch (InterruptedException ex) {
+                Logger.getLogger(GameState.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
+        super.update(tpf); //To change body of generated methods, choose Tools | Templates.
     }
     private Thread thread = new Thread() {
         @Override
@@ -156,9 +249,9 @@ public class GameState extends AbstractAppState {
             obstacles.add(new int[]{139, 58});
             obstacles.add(new int[]{139, 59});
             obstacles.add(new int[]{139, 60});
-            
-            
-                        
+
+
+
             obstacles.add(new int[]{60, 0});
             obstacles.add(new int[]{60, 1});
             obstacles.add(new int[]{60, 2});
@@ -243,58 +336,4 @@ public class GameState extends AbstractAppState {
 
         }
     };
-    
-    
-
-    private void initLight() {
-        rootNode.addLight(new AmbientLight());
-        DirectionalLight sun = new DirectionalLight();
-        sun.setDirection(new Vector3f(-10.0f, -1.3f, 1.3f));
-        rootNode.addLight(sun);
-    }
-
-    private void initConstants() {
-        spawnPoint = new Vector3f(-xBlock * blockSize, 1.0f, 0.0f);
-        basePoint = new Vector3f(xBlock * blockSize, 1.0f, 0.0f);
-    }
-
-    private Geometry generateBox(String name, float x, float y, float z, String matPath, ColorRGBA color, Vector3f pos) {
-        Box box = new Box(x, y, z);
-        Geometry geom = new Geometry(name, box);
-
-        Material mat;
-
-        if (matPath == null) {
-            mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        } else {
-            mat = new Material(assetManager, matPath);
-        }
-
-        if (color != null) {
-            mat.setColor("Color", color);
-        }
-        geom.setMaterial(mat);
-        geom.setLocalTranslation(pos);
-        return geom;
-    }
-
-    private void generateCreep() {
-        Geometry creep = generateBox("Creep", 1f, 1f, 1f, "Common/MatDefs/Misc/Unshaded.j3md", ColorRGBA.Red, spawnPoint.add(new Vector3f(1.0f, 1.0f, 1.0f)));
-        test = new CreepControl(cam, rootNode, basePoint);
-        creep.addControl(test);
-        rootNode.attachChild(creep);
-    }
-
-    @Override
-    public void update(float tpf) {
-        if (creepPath != null && first) {
-            first = false;
-            for (Vertex vertex : creepPath) {
-                rootNode.attachChild(generateBox("Test", 0.5f, 10, 0.5f, null, ColorRGBA.Orange, vertex.getCenter()));
-            }
-            
-        
-        }
-        super.update(tpf); //To change body of generated methods, choose Tools | Templates.
-    }
 }
