@@ -13,6 +13,7 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Node;
 import com.jme3.scene.control.AbstractControl;
+import de.lessvoid.nifty.tools.LinearInterpolator.Point;
 import java.util.List;
 import pathfinder.Vertex;
 
@@ -39,6 +40,7 @@ public class CreepControl extends AbstractControl {
 
     public void setCreepPath(List<Vertex> creepPath) {
         this.creepPath = creepPath;
+        pathIndex = creepPath.size() - 1;
     }
 
     @Override
@@ -52,18 +54,26 @@ public class CreepControl extends AbstractControl {
 
         if (creepPath != null) {
             if (spatial.getLocalTranslation().getX() > creepPath.get(pathIndex).getCenter().getX() - 0.5f && spatial.getLocalTranslation().getX() < spatial.getLocalTranslation().getX() + 0.5f
-                    && spatial.getLocalTranslation().getZ() > creepPath.get(pathIndex).getCenter().getY() - 0.5f && spatial.getLocalTranslation().getZ() < creepPath.get(pathIndex).getCenter().getY() + 0.5f) {
-                pathIndex++;
-                System.out.println("Increasing!");
+                    && spatial.getLocalTranslation().getZ() > creepPath.get(pathIndex).getCenter().getZ() - 0.5f && spatial.getLocalTranslation().getZ() < creepPath.get(pathIndex).getCenter().getZ() + 0.5f) {
+                if (pathIndex > 1){
+                    pathIndex --;
+                }
             }
-         
+
             Vector3f direction = new Vector3f(creepPath.get(pathIndex).getCenter().getX() - spatial.getLocalTranslation().getX(), 0, creepPath.get(pathIndex).getCenter().getX() + spatial.getLocalTranslation().getZ());
             direction.normalizeLocal();
             //System.out.println("X: " + direction.getX() + "Z: " + direction.getZ() );
-            
 
-            spatial.setLocalTranslation(spatial.getLocalTranslation().add(creepPath.get(pathIndex).getCenter().normalize().mult(0.05f)));
+
+            //spatial.setLocalTranslation(spatial.getLocalTranslation().add(creepPath.get(pathIndex).getCenter().normalize().mult(0.05f)));
+            spatial.setLocalTranslation(MovePointTowards(spatial.getLocalTranslation(), creepPath.get(pathIndex).getCenter()));
         }
+    }
+
+    public Vector3f MovePointTowards(Vector3f a, Vector3f b) {
+        Vector3f direction = new Vector3f(b.getX() - a.getX(), 0, b.getZ() - a.getZ());
+        direction = direction.normalize();
+        return new Vector3f(a.getX() + direction.getX() * 0.3f, a.getY(), a.getZ() + direction.getZ() * 0.3f);
     }
 
     @Override
