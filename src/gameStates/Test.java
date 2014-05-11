@@ -5,7 +5,7 @@
 package gameStates;
 
 import com.jme3.math.Vector3f;
-import pathfinder.Utils;
+import utils.GridCalculator;
 
 /**
  *
@@ -15,7 +15,7 @@ public class Test {
 
     public static void main(String[] args) {
         Vector3f v = new Vector3f(-79.36f, 10f, 42f);
-        int[] grid = Utils.calculateGrid(v);
+        int[] grid = GridCalculator.calculateGrid(v);
         System.out.println("X: " + grid[0] + " Y: " + grid[1]);
     }
 }

@@ -4,6 +4,9 @@
  */
 package pathfinder;
 
+import utils.GridCalculator;
+import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
 import java.util.List;
 
 /**
@@ -27,7 +30,7 @@ public class Graph {
     public void initializeGraph() {
         for (int i = 0; i < x; i++) {
             for (int j = 0; j < y; j++) {
-                graph[i][j] = new Vertex(Utils.calculateCenter(i, j));
+                graph[i][j] = new Vertex(GridCalculator.calculateCenter(i, j));
             }
         }
     }
@@ -87,8 +90,17 @@ public class Graph {
         }
     }
     
-    public void setObstacles(List<int[]> obsatacles){
-        for (int[] pos : obsatacles) {
+    public void setObstacles(Node obstacles, Node towers){
+        
+        int[] pos;
+        
+        for (Spatial obstacle : obstacles.getChildren()) {
+            pos = GridCalculator.calculateGrid(obstacle.getLocalTranslation());
+            graph[pos[0]][pos[1]].setObstacle(true);
+        }
+        
+        for (Spatial tower : towers.getChildren()) {
+            pos = GridCalculator.calculateGrid(tower.getLocalTranslation());
             graph[pos[0]][pos[1]].setObstacle(true);
         }
     }

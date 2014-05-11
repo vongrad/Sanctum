@@ -4,6 +4,7 @@
  */
 package controls;
 
+import Listeners.CreepPathUpdatedListener;
 import com.jme3.collision.CollisionResult;
 import com.jme3.collision.CollisionResults;
 import com.jme3.math.Ray;
@@ -21,21 +22,27 @@ import pathfinder.Vertex;
  *
  * @author adamv_000
  */
-public class CreepControl extends AbstractControl {
+public class CreepControl extends AbstractControl implements CreepPathUpdatedListener, GeometryDisposed {
 
+    private int life;
+    private float speed;
     private Ray ray;
     private final Camera cam;
     private final Node rootNode;
     private final Vector3f basePoint;
     private List<Vertex> creepPath;
     private int pathIndex;
+    private boolean isDeath;
 
-    public CreepControl(Camera cam, Node rootNode, Vector3f basePoint) {
+    public CreepControl(Camera cam, Node rootNode, Vector3f basePoint, int life, float speed) {
+        this.life = life;
+        this.speed = speed;
         this.cam = cam;
         this.rootNode = rootNode;
         this.basePoint = basePoint;
         ray = new Ray();
         pathIndex = 0;
+        isDeath = false;
     }
 
     public void setCreepPath(List<Vertex> creepPath) {
@@ -55,8 +62,8 @@ public class CreepControl extends AbstractControl {
         if (creepPath != null) {
             if (spatial.getLocalTranslation().getX() > creepPath.get(pathIndex).getCenter().getX() - 0.5f && spatial.getLocalTranslation().getX() < spatial.getLocalTranslation().getX() + 0.5f
                     && spatial.getLocalTranslation().getZ() > creepPath.get(pathIndex).getCenter().getZ() - 0.5f && spatial.getLocalTranslation().getZ() < creepPath.get(pathIndex).getCenter().getZ() + 0.5f) {
-                if (pathIndex > 1){
-                    pathIndex --;
+                if (pathIndex > 1) {
+                    pathIndex--;
                 }
             }
 
@@ -67,16 +74,39 @@ public class CreepControl extends AbstractControl {
 
             //spatial.setLocalTranslation(spatial.getLocalTranslation().add(creepPath.get(pathIndex).getCenter().normalize().mult(0.05f)));
             spatial.setLocalTranslation(MovePointTowards(spatial.getLocalTranslation(), creepPath.get(pathIndex).getCenter()));
+
         }
     }
 
     public Vector3f MovePointTowards(Vector3f a, Vector3f b) {
         Vector3f direction = new Vector3f(b.getX() - a.getX(), 0, b.getZ() - a.getZ());
         direction = direction.normalize();
-        return new Vector3f(a.getX() + direction.getX() * 0.3f, a.getY(), a.getZ() + direction.getZ() * 0.3f);
+        return new Vector3f(a.getX() + direction.getX() * speed, a.getY(), a.getZ() + direction.getZ() * speed);
     }
 
     @Override
     protected void controlRender(RenderManager rm, ViewPort vp) {
+    }
+
+    public void setPath(List<Vertex> path) {
+        creepPath = path;
+        pathIndex = creepPath.size() - 1;
+    }
+
+    public void causeDamage(int damage) {
+        this.life -= damage;
+
+        if (life <= 0) {
+            isDeath = true;
+            System.out.println("Death!");
+        } else {
+            isDeath = false;
+        }
+       
+    }
+    
+
+    public boolean isDisposed() {
+        return isDeath;
     }
 }

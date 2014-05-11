@@ -4,6 +4,7 @@
  */
 package pathfinder;
 
+import utils.GridCalculator;
 import java.util.ArrayList;
 import java.util.List;
 import sun.misc.Queue;
@@ -39,17 +40,21 @@ public class PathFinder {
             current = findLowestFCost();
 
         }
-        System.out.println("Dest Vertex: " + Utils.calculateGrid(destVertex.getCenter())[0] + " " + Utils.calculateGrid(destVertex.getCenter())[1]);
+        System.out.println("Dest Vertex: " + GridCalculator.calculateGrid(destVertex.getCenter())[0] + " " + GridCalculator.calculateGrid(destVertex.getCenter())[1]);
         return calculateFinalPath(destVertex);
     }
 
     private Vertex findLowestFCost() {
+        //not tested!
+        Vertex lowest = null;
 
-        Vertex lowest = open.get(0);
+        if (open.size() > 1) {
+            lowest = open.get(0);
 
-        for (Vertex vertex : open) {
-            if (lowest.getgCost() + lowest.gethCost() > vertex.getgCost() + vertex.gethCost()) {
-                lowest = vertex;
+            for (Vertex vertex : open) {
+                if (lowest.getgCost() + lowest.gethCost() > vertex.getgCost() + vertex.gethCost()) {
+                    lowest = vertex;
+                }
             }
         }
         return lowest;
@@ -86,11 +91,11 @@ public class PathFinder {
                 //return current;
                 //}
 
-                hCost = calculateHCost(Utils.calculateGrid(neighbour.getVertex().getCenter()), destination);
+                hCost = calculateHCost(GridCalculator.calculateGrid(neighbour.getVertex().getCenter()), destination);
                 neighbour.getVertex().sethCost(hCost * 10);
 
                 calculateGCost(neighbour, current);
-                
+
                 if (closest == null) {
                     closest = neighbour;
                     continue;
@@ -105,18 +110,17 @@ public class PathFinder {
 
         for (Neighbour neighbour : current.getNeighbours()) {
             //System.out.println("Setting path for: |" + Utils.calculateGrid(neighbour.getVertex().getCenter())[0] + "," + Utils.calculateGrid(neighbour.getVertex().getCenter())[1] + "| to |" + Utils.calculateGrid(current.getCenter())[0] + "," + Utils.calculateGrid(current.getCenter())[1] + "|");
-            
-            if (neighbour.getVertex().getParent() == null){
-                 neighbour.getVertex().setParent(current);
-            }
-            else{
+
+            if (neighbour.getVertex().getParent() == null) {
+                neighbour.getVertex().setParent(current);
+            } else {
 //                if (neighbour.getVertex().getParent().getgCost() > current.getParent().getgCost()){
 //                    neighbour.getVertex().setParent(current);
 //                    
 //                    calculateGCost(neighbour, current);
 //               }
             }
-           
+
 
             if (!vertexInList(neighbour.getVertex()) && neighbour.getVertex().isVisited() == false && !neighbour.getVertex().isObstacle()) {
                 //if (!neighbour.getDirection().equals(closest.getDirection())) {
@@ -128,16 +132,16 @@ public class PathFinder {
         //return closest.getVertex();
         return null;
     }
-    
-    private void calculateGCost(Neighbour neighbour, Vertex current){
+
+    private void calculateGCost(Neighbour neighbour, Vertex current) {
         if (neighbour.getDirection().equals(Constants.NORTHEAST)
-                        || neighbour.getDirection().equals(Constants.EASTSOUTH)
-                        || neighbour.getDirection().equals(Constants.SOUTHWEST)
-                        || neighbour.getDirection().equals(Constants.WESTNORTH)) {
-                    neighbour.getVertex().setgCost(current.getgCost() + 14);
-                } else {
-                    neighbour.getVertex().setgCost(current.getgCost() + 10);
-                }
+                || neighbour.getDirection().equals(Constants.EASTSOUTH)
+                || neighbour.getDirection().equals(Constants.SOUTHWEST)
+                || neighbour.getDirection().equals(Constants.WESTNORTH)) {
+            neighbour.getVertex().setgCost(current.getgCost() + 14);
+        } else {
+            neighbour.getVertex().setgCost(current.getgCost() + 10);
+        }
     }
 
     private List<Vertex> calculateFinalPath(Vertex dest) {

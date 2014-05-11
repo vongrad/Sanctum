@@ -18,4 +18,7 @@ public class Constants {
     public static final String EASTSOUTH = "EastSouth";
     public static final String SOUTHWEST = "SouthWest";
     public static final String WESTNORTH = "WestNorth";
+    
+    public static final int ACTION_TOWER = 1;
+    public static final int ACTION_OBSTACLE = 2;
 }
