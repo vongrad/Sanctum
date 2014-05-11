@@ -30,7 +30,7 @@ public class PathFinder {
 
         while (!open.isEmpty() && destVertex == null) {
 
-            System.out.println("Looking: " + Utils.calculateGrid(current.getCenter())[0] + " " + Utils.calculateGrid(current.getCenter())[1]);
+            //System.out.println("Looking: " + Utils.calculateGrid(current.getCenter())[0] + " " + Utils.calculateGrid(current.getCenter())[1]);
             current.setVisited(true);
             destVertex = calculateNext(current, destination);
 
@@ -89,15 +89,8 @@ public class PathFinder {
                 hCost = calculateHCost(Utils.calculateGrid(neighbour.getVertex().getCenter()), destination);
                 neighbour.getVertex().sethCost(hCost * 10);
 
-                if (neighbour.getDirection().equals(Constants.NORTHEAST)
-                        || neighbour.getDirection().equals(Constants.EASTSOUTH)
-                        || neighbour.getDirection().equals(Constants.SOUTHWEST)
-                        || neighbour.getDirection().equals(Constants.WESTNORTH)) {
-                    neighbour.getVertex().setgCost(current.getgCost() + 14);
-                } else {
-                    neighbour.getVertex().setgCost(current.getgCost() + 10);
-                }
-
+                calculateGCost(neighbour, current);
+                
                 if (closest == null) {
                     closest = neighbour;
                     continue;
@@ -111,9 +104,17 @@ public class PathFinder {
 
 
         for (Neighbour neighbour : current.getNeighbours()) {
-            System.out.println("Setting path for: |" + Utils.calculateGrid(neighbour.getVertex().getCenter())[0] + "," + Utils.calculateGrid(neighbour.getVertex().getCenter())[1] + "| to |" + Utils.calculateGrid(current.getCenter())[0] + "," + Utils.calculateGrid(current.getCenter())[1] + "|");
+            //System.out.println("Setting path for: |" + Utils.calculateGrid(neighbour.getVertex().getCenter())[0] + "," + Utils.calculateGrid(neighbour.getVertex().getCenter())[1] + "| to |" + Utils.calculateGrid(current.getCenter())[0] + "," + Utils.calculateGrid(current.getCenter())[1] + "|");
+            
             if (neighbour.getVertex().getParent() == null){
                  neighbour.getVertex().setParent(current);
+            }
+            else{
+//                if (neighbour.getVertex().getParent().getgCost() > current.getParent().getgCost()){
+//                    neighbour.getVertex().setParent(current);
+//                    
+//                    calculateGCost(neighbour, current);
+//               }
             }
            
 
@@ -127,16 +128,28 @@ public class PathFinder {
         //return closest.getVertex();
         return null;
     }
+    
+    private void calculateGCost(Neighbour neighbour, Vertex current){
+        if (neighbour.getDirection().equals(Constants.NORTHEAST)
+                        || neighbour.getDirection().equals(Constants.EASTSOUTH)
+                        || neighbour.getDirection().equals(Constants.SOUTHWEST)
+                        || neighbour.getDirection().equals(Constants.WESTNORTH)) {
+                    neighbour.getVertex().setgCost(current.getgCost() + 14);
+                } else {
+                    neighbour.getVertex().setgCost(current.getgCost() + 10);
+                }
+    }
 
     private List<Vertex> calculateFinalPath(Vertex dest) {
 
         List<Vertex> shortestPath = new ArrayList<Vertex>();
 
         while (!dest.getParent().isSource()) {
-            System.out.println("Dest: " + Utils.calculateGrid(dest.getCenter())[0] + " " + Utils.calculateGrid(dest.getCenter())[1]);
+            //System.out.println("Dest: " + Utils.calculateGrid(dest.getCenter())[0] + " " + Utils.calculateGrid(dest.getCenter())[1]);
             shortestPath.add(dest);
             dest = dest.getParent();
         }
+
         return shortestPath;
     }
 }
