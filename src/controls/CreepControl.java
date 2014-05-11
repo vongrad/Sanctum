@@ -16,6 +16,8 @@ import com.jme3.scene.Node;
 import com.jme3.scene.control.AbstractControl;
 import de.lessvoid.nifty.tools.LinearInterpolator.Point;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import pathfinder.Vertex;
 
 /**
@@ -33,8 +35,13 @@ public class CreepControl extends AbstractControl implements CreepPathUpdatedLis
     private List<Vertex> creepPath;
     private int pathIndex;
     private boolean isDeath;
+    private Timer timer;
+    private long delay;
+    private boolean canWalk;
 
-    public CreepControl(Camera cam, Node rootNode, Vector3f basePoint, int life, float speed) {
+    public CreepControl(List<Vertex> creepPath, Camera cam, Node rootNode, Vector3f basePoint, int life, float speed, long delay) {
+        this.delay = delay;
+        this.creepPath = creepPath;
         this.life = life;
         this.speed = speed;
         this.cam = cam;
@@ -43,6 +50,8 @@ public class CreepControl extends AbstractControl implements CreepPathUpdatedLis
         ray = new Ray();
         pathIndex = 0;
         isDeath = false;
+        timer = new Timer();
+        this.canWalk = false;
     }
 
     public void setCreepPath(List<Vertex> creepPath) {
@@ -58,10 +67,9 @@ public class CreepControl extends AbstractControl implements CreepPathUpdatedLis
 //        
 //        CollisionResults colisionRes = new CollisionResults();
 //        rootNode.collideWith(ray, colisionRes);
-
-        if (creepPath != null) {
-            if (spatial.getLocalTranslation().getX() > creepPath.get(pathIndex).getCenter().getX() - 0.5f && spatial.getLocalTranslation().getX() < spatial.getLocalTranslation().getX() + 0.5f
-                    && spatial.getLocalTranslation().getZ() > creepPath.get(pathIndex).getCenter().getZ() - 0.5f && spatial.getLocalTranslation().getZ() < creepPath.get(pathIndex).getCenter().getZ() + 0.5f) {
+        if (creepPath != null && canWalk) {
+            if (spatial.getLocalTranslation().getX() >= creepPath.get(pathIndex).getCenter().getX() - 0.5f && spatial.getLocalTranslation().getX() <= spatial.getLocalTranslation().getX() + 0.5f
+                    && spatial.getLocalTranslation().getZ() >= creepPath.get(pathIndex).getCenter().getZ() - 0.5f && spatial.getLocalTranslation().getZ() <= creepPath.get(pathIndex).getCenter().getZ() + 0.5f) {
                 if (pathIndex > 1) {
                     pathIndex--;
                 }
@@ -91,7 +99,14 @@ public class CreepControl extends AbstractControl implements CreepPathUpdatedLis
     public void setPath(List<Vertex> path) {
         creepPath = path;
         pathIndex = creepPath.size() - 1;
+        timer.schedule(timerTask, delay);
     }
+    private TimerTask timerTask = new TimerTask() {
+        @Override
+        public void run() {
+            canWalk = true;
+        }
+    };
 
     public void causeDamage(int damage) {
         this.life -= damage;
@@ -102,9 +117,8 @@ public class CreepControl extends AbstractControl implements CreepPathUpdatedLis
         } else {
             isDeath = false;
         }
-       
+
     }
-    
 
     public boolean isDisposed() {
         return isDeath;

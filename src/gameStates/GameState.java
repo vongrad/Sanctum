@@ -35,6 +35,7 @@ import controls.TowerControl;
 import de.lessvoid.nifty.effects.impl.Gradient;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import pathfinder.Constants;
@@ -50,7 +51,7 @@ import utils.ShapeBuilder;
  * @author adamv_000
  */
 public class GameState extends AbstractAppState {
-    
+
     private ShapeBuilder shapeBuilder;
     private SimpleApplication app;
     private Camera cam;
@@ -81,17 +82,21 @@ public class GameState extends AbstractAppState {
     private static final String MAPPING_START_WAVE = "Start_Wave";
     private int action;
     private boolean first = true;
+    private int waveIndex;
+    //private int waveCount;
 
     @Override
     public void initialize(AppStateManager stateManager, Application app) {
         super.initialize(stateManager, app);
 
         creepListeners = new ArrayList<CreepPathUpdatedListener>();
-        
+
         pathFinder = new PathFinder();
         graphBuilder = new Graph(xBlock * 2, xBlock * 2);
 
         action = Constants.ACTION_OBSTACLE;
+        waveIndex = 1;
+        //waveCount = 5;
 
         this.app = (SimpleApplication) app;
         this.cam = this.app.getCamera();
@@ -109,7 +114,7 @@ public class GameState extends AbstractAppState {
         rootNode.attachChild(obstacleNode);
         rootNode.attachChild(pathNode);
         rootNode.attachChild(bulletNode);
-        
+
         shapeBuilder = new ShapeBuilder(assetManager);
 
         initLight();
@@ -156,7 +161,10 @@ public class GameState extends AbstractAppState {
             }
             if (name.equals(MAPPING_START_WAVE) && !isPressed) {
                 calculateCreepPath();
-                generateCreep();
+                generateCreepWave();
+                //generateCreep(0);
+                //generateCreep(0);
+                //generateCreep(0);
 
             }
         }
@@ -211,10 +219,8 @@ public class GameState extends AbstractAppState {
         return true;
     }
 
-    
-
     private void generateTower(int[] gridPos) {
-        
+
         Geometry tower = shapeBuilder.generateBox("Tower", 0.5f, 12.0f, 0.5f, null, ColorRGBA.Green, GridCalculator.calculateCenter(gridPos[0], gridPos[1]));
         tower.addControl(new TowerControl(bulletNode, 5, 200, 15.0f, creepNode, shapeBuilder));
         towerNode.attachChild(tower);
@@ -230,25 +236,27 @@ public class GameState extends AbstractAppState {
 
     }
 
-    private void generateCreep() {
+    private void generateCreep(long delay) {
         Geometry creep = shapeBuilder.generateBox("Creep", 1f, 1f, 1f, "Common/MatDefs/Misc/Unshaded.j3md", ColorRGBA.Red, spawnPoint.add(new Vector3f(1.0f, 1.0f, 1.0f)));
-        CreepControl control = new CreepControl(cam, rootNode, basePoint, 100, 0.3f);
+        System.out.println("Creep path == null: " + (creepPath == null ? "true" : "false"));
+        CreepControl control = new CreepControl(creepPath, cam, rootNode, basePoint, 100, 0.3f, delay);
+
         addCreepListener(control);
         creep.addControl(control);
         creepNode.attachChild(creep);
     }
-    
-    public void disposeGeometries(){
+
+    public void disposeGeometries() {
         for (Spatial spatial : bulletNode.getChildren()) {
-            if (((GeometryDisposed)spatial.getControl(0)).isDisposed()){
+            if (((GeometryDisposed) spatial.getControl(0)).isDisposed()) {
                 spatial.removeFromParent();
             }
         }
         for (Spatial spatial : creepNode.getChildren()) {
-            if (((GeometryDisposed)spatial.getControl(0)).isDisposed()){
+            if (((GeometryDisposed) spatial.getControl(0)).isDisposed()) {
                 //creepNode.getChildren().remove(spatial);
                 spatial.removeFromParent();
-                
+
             }
         }
     }
@@ -298,8 +306,51 @@ public class GameState extends AbstractAppState {
         };
         thread.start();
     }
+
+//    private void generateCreepWave() {
+//
+//        Thread thread = new Thread() {
+//            @Override
+//            public void run() {
+//
+//                Random rnd = new Random();
+//                int numberOfCreeps = rnd.nextInt(5) + 6;
+//                numberOfCreeps *= waveIndex;
+//
+//                while (creepPath == null) {
+//                    try {
+//                        Thread.sleep(50);
+//                    } catch (InterruptedException ex) {
+//                        Logger.getLogger(GameState.class.getName()).log(Level.SEVERE, null, ex);
+//                    }
+//                }
+//
+//                for (int i = 0; i < numberOfCreeps; i++) {
+//
+//                    generateCreep();
+//                    try {
+//                        Thread.sleep(250);
+//                    } catch (InterruptedException ex) {
+//                        Logger.getLogger(GameState.class.getName()).log(Level.SEVERE, null, ex);
+//                    }
+//                }
+//            }
+//        };
+//
+//        thread.start();
+//    }
     
-    
+    //Probably not the best solution, we gotta ask Tobias...
+    private void generateCreepWave() {
+        
+        Random rnd = new Random();
+        int numberOfCreeps = rnd.nextInt(5) + 6;
+        numberOfCreeps *= waveIndex;
+        
+        for (int i = 0; i < numberOfCreeps; i++) {
+            generateCreep(i * 250);
+        }
+    }
 
     private void notifyCreeps(List<Vertex> path) {
         for (CreepPathUpdatedListener creepPathUpdatedListener : creepListeners) {
