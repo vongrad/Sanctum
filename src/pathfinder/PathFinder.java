@@ -81,7 +81,7 @@ public class PathFinder {
         //System.out.println("Neighbours size: " + current.getNeighbours().size());
         for (Neighbour neighbour : current.getNeighbours()) {
             if (!neighbour.getVertex().isObstacle()) {
-
+                
                 if (neighbour.getVertex().isDestination()) {
                     neighbour.getVertex().setParent(current);
                     return neighbour.getVertex();

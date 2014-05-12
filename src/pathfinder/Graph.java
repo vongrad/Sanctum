@@ -65,26 +65,26 @@ public class Graph {
                             current.addNeighbour(Constants.WEST, graph[i - 1][j]);
                         }
                     }
-                    if (j - 1 >= 0 && j - 1 < y && i + 1 >= 0 && i + 1 < x) {
-                        if (!graph[i + 1][j - 1].isObstacle()) {
-                            current.addNeighbour(Constants.NORTHEAST, graph[i + 1][j - 1]);
-                        }
-                    }
-                    if (j + 1 >= 0 && j + 1 < y && i + 1 >= 0 && i + 1 < x) {
-                        if (!graph[i + 1][j + 1].isObstacle()) {
-                            current.addNeighbour(Constants.EASTSOUTH, graph[i + 1][j + 1]);
-                        }
-                    }
-                    if (j + 1 >= 0 && j + 1 < y && i - 1 >= 0 && i - 1 < x) {
-                        if (!graph[i - 1][j + 1].isObstacle()) {
-                            current.addNeighbour(Constants.SOUTHWEST, graph[i - 1][j + 1]);
-                        }
-                    }
-                    if (j - 1 >= 0 && j - 1 < y && i - 1 >= 0 && i - 1 < x) {
-                        if (!graph[i - 1][j - 1].isObstacle()) {
-                            current.addNeighbour(Constants.WESTNORTH, graph[i - 1][j - 1]);
-                        }
-                    }
+//                    if (j - 1 >= 0 && j - 1 < y && i + 1 >= 0 && i + 1 < x) {
+//                        if (!graph[i + 1][j - 1].isObstacle()) {
+//                            current.addNeighbour(Constants.NORTHEAST, graph[i + 1][j - 1]);
+//                        }
+//                    }
+//                    if (j + 1 >= 0 && j + 1 < y && i + 1 >= 0 && i + 1 < x) {
+//                        if (!graph[i + 1][j + 1].isObstacle()) {
+//                            current.addNeighbour(Constants.EASTSOUTH, graph[i + 1][j + 1]);
+//                        }
+//                    }
+//                    if (j + 1 >= 0 && j + 1 < y && i - 1 >= 0 && i - 1 < x) {
+//                        if (!graph[i - 1][j + 1].isObstacle()) {
+//                            current.addNeighbour(Constants.SOUTHWEST, graph[i - 1][j + 1]);
+//                        }
+//                    }
+//                    if (j - 1 >= 0 && j - 1 < y && i - 1 >= 0 && i - 1 < x) {
+//                        if (!graph[i - 1][j - 1].isObstacle()) {
+//                            current.addNeighbour(Constants.WESTNORTH, graph[i - 1][j - 1]);
+//                        }
+//                    }
                 }
             }
         }

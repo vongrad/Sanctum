@@ -38,6 +38,7 @@ public class CreepControl extends AbstractControl implements CreepPathUpdatedLis
     private Timer timer;
     private long delay;
     private boolean canWalk;
+    private int lastTime = 0;
 
     public CreepControl(List<Vertex> creepPath, Camera cam, Node rootNode, Vector3f basePoint, int life, float speed, long delay) {
         this.delay = delay;
@@ -61,6 +62,9 @@ public class CreepControl extends AbstractControl implements CreepPathUpdatedLis
 
     @Override
     protected void controlUpdate(float tpf) {
+        System.out.println((int)(tpf*1000));
+//        if(tpf > lastTime + 10){
+//        lastTime = (int)tpf;
         spatial.rotate(0, 0, -tpf);
 //        ray.setOrigin(spatial.getLocalTranslation());
 //        ray.setDirection(basePoint);
@@ -84,6 +88,7 @@ public class CreepControl extends AbstractControl implements CreepPathUpdatedLis
             spatial.setLocalTranslation(MovePointTowards(spatial.getLocalTranslation(), creepPath.get(pathIndex).getCenter()));
 
         }
+//        }
     }
 
     public Vector3f MovePointTowards(Vector3f a, Vector3f b) {
