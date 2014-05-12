@@ -160,6 +160,8 @@ public class GameState extends AbstractAppState {
                 action = 2;
             }
             if (name.equals(MAPPING_START_WAVE) && !isPressed) {
+                creepNode.getChildren().clear();
+                creepListeners.clear();
                 calculateCreepPath();
                 generateCreepWave();
                 //generateCreep(0);
