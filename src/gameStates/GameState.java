@@ -85,10 +85,12 @@ public class GameState extends AbstractAppState {
     private static final Trigger TRIGGER_BUILD = new MouseButtonTrigger(MouseInput.BUTTON_LEFT);
     private static final Trigger TRIGGER_ACTION_OBSTACLE = new KeyTrigger(KeyInput.KEY_1);
     private static final Trigger TRIGGER_ACTION_TOWER = new KeyTrigger(KeyInput.KEY_2);
+    private static final Trigger TRIGGER_ACTION_TOWER2 = new KeyTrigger(KeyInput.KEY_3);
     private static final Trigger TRIGGER_START_WAVE = new KeyTrigger(KeyInput.KEY_F1);
     private static final String MAPPING_BUILD = "Build";
     private static final String MAPPING_ACTION_OBSTACLE = "Action_Obstacle";
     private static final String MAPPING_ACTION_TOWER = "Action_Tower";
+    private static final String MAPPING_ACTION_TOWER2 = "Action_Tower2";
     private static final String MAPPING_START_WAVE = "Start_Wave";
     private int action;
     private boolean first = true;
@@ -173,8 +175,9 @@ public class GameState extends AbstractAppState {
         app.getInputManager().addMapping(MAPPING_BUILD, TRIGGER_BUILD);
         app.getInputManager().addMapping(MAPPING_ACTION_OBSTACLE, TRIGGER_ACTION_OBSTACLE);
         app.getInputManager().addMapping(MAPPING_ACTION_TOWER, TRIGGER_ACTION_TOWER);
+        app.getInputManager().addMapping(MAPPING_ACTION_TOWER2, TRIGGER_ACTION_TOWER2);
         app.getInputManager().addMapping(MAPPING_START_WAVE, TRIGGER_START_WAVE);
-        app.getInputManager().addListener(actionListener, new String[]{MAPPING_BUILD, MAPPING_ACTION_OBSTACLE, MAPPING_ACTION_TOWER, MAPPING_START_WAVE});
+        app.getInputManager().addListener(actionListener, new String[]{MAPPING_BUILD, MAPPING_ACTION_OBSTACLE, MAPPING_ACTION_TOWER, MAPPING_START_WAVE, MAPPING_ACTION_TOWER2});
     }
     private ActionListener actionListener = new ActionListener() {
         public void onAction(String name, boolean isPressed, float tpf) {
@@ -193,12 +196,14 @@ public class GameState extends AbstractAppState {
                     } else if (action == 2 && gridTowerAvailable(grid)) {
                         generateTower(grid);
                     }
+                    else if (action == 3 && gridTower2Available(grid)){
+                        generateTower2(grid);
+                    }
 
 
                 }
             }
             if (name.equals(MAPPING_BUILD) && !isPressed && !waveFinished) {
-                System.out.println("Shooting");
                 ray.setOrigin(cam.getLocation());
                 ray.setDirection(cam.getDirection());
                 CollisionResults colResults = new CollisionResults();
@@ -217,6 +222,9 @@ public class GameState extends AbstractAppState {
             }
             if (name.equals(MAPPING_ACTION_TOWER)) {
                 action = 2;
+            }
+            if (name.equals(MAPPING_ACTION_TOWER2)){
+                action = 3;
             }
             if (name.equals(MAPPING_START_WAVE) && !isPressed && waveFinished) {
                 creepNode.getChildren().clear();
@@ -269,6 +277,21 @@ public class GameState extends AbstractAppState {
         }
         return available;
     }
+    
+     private boolean gridTower2Available(int[] gridPos) {
+
+        boolean available = true;
+
+        for (int i = gridPos[0] - 1; i <= gridPos[0] + 1; i++) {
+            for (int j = gridPos[1] - 2; j <= gridPos[1] + 2; j++) {
+                available = gridAvailable(new int[]{i, j});
+                if (!available) {
+                    return available;
+                }
+            }
+        }
+        return available;
+    }
 
     private boolean gridAvailable(int[] gridPos) {
 
@@ -297,6 +320,33 @@ public class GameState extends AbstractAppState {
         obstacleNode.attachChild(shapeBuilder.generateBox("Obstacle", 0.5f, 10.0f, 0.5f, "Common/MatDefs/Light/Lighting.j3md", "Textures/Terrain/Building/Building.jpg", ColorRGBA.Gray, GridCalculator.calculateCenter(gridPos[0] - 1, gridPos[1] - 1)));
         obstacleNode.attachChild(shapeBuilder.generateBox("Obstacle", 0.5f, 10.0f, 0.5f, "Common/MatDefs/Light/Lighting.j3md", "Textures/Terrain/Building/Building.jpg", ColorRGBA.Gray, GridCalculator.calculateCenter(gridPos[0] + 1, gridPos[1] - 1)));
         obstacleNode.attachChild(shapeBuilder.generateBox("Obstacle", 0.5f, 10.0f, 0.5f, "Common/MatDefs/Light/Lighting.j3md", "Textures/Terrain/Building/Building.jpg", ColorRGBA.Gray, GridCalculator.calculateCenter(gridPos[0] - 1, gridPos[1] + 1)));
+
+
+    }
+    
+      private void generateTower2(int[] gridPos) {
+
+        Geometry tower = shapeBuilder.generateBox("Tower2", 0.5f, 12.0f, 0.5f, null, null, ColorRGBA.Green, GridCalculator.calculateCenter(gridPos[0], gridPos[1] + 1));
+        tower.addControl(new TowerControl(bulletNode, 8, 200, 15.0f, creepNode, shapeBuilder));
+        towerNode.attachChild(tower);
+        
+        tower = shapeBuilder.generateBox("Tower2", 0.5f, 12.0f, 0.5f, null, null, ColorRGBA.Green, GridCalculator.calculateCenter(gridPos[0], gridPos[1] - 1));
+        tower.addControl(new TowerControl(bulletNode, 8, 200, 15.0f, creepNode, shapeBuilder));
+        towerNode.attachChild(tower);
+        
+        obstacleNode.attachChild(shapeBuilder.generateBox("Obstacle", 0.5f, 10.0f, 0.5f, "Common/MatDefs/Light/Lighting.j3md", "Textures/Terrain/Building/Building.jpg", ColorRGBA.Gray, GridCalculator.calculateCenter(gridPos[0], gridPos[1])));
+        obstacleNode.attachChild(shapeBuilder.generateBox("Obstacle", 0.5f, 10.0f, 0.5f, "Common/MatDefs/Light/Lighting.j3md", "Textures/Terrain/Building/Building.jpg", ColorRGBA.Gray, GridCalculator.calculateCenter(gridPos[0], gridPos[1] + 2)));
+        obstacleNode.attachChild(shapeBuilder.generateBox("Obstacle", 0.5f, 10.0f, 0.5f, "Common/MatDefs/Light/Lighting.j3md", "Textures/Terrain/Building/Building.jpg", ColorRGBA.Gray, GridCalculator.calculateCenter(gridPos[0], gridPos[1] - 2)));
+        obstacleNode.attachChild(shapeBuilder.generateBox("Obstacle", 0.5f, 10.0f, 0.5f, "Common/MatDefs/Light/Lighting.j3md", "Textures/Terrain/Building/Building.jpg", ColorRGBA.Gray, GridCalculator.calculateCenter(gridPos[0] + 1, gridPos[1])));
+        obstacleNode.attachChild(shapeBuilder.generateBox("Obstacle", 0.5f, 10.0f, 0.5f, "Common/MatDefs/Light/Lighting.j3md", "Textures/Terrain/Building/Building.jpg", ColorRGBA.Gray, GridCalculator.calculateCenter(gridPos[0] - 1, gridPos[1])));
+        obstacleNode.attachChild(shapeBuilder.generateBox("Obstacle", 0.5f, 10.0f, 0.5f, "Common/MatDefs/Light/Lighting.j3md", "Textures/Terrain/Building/Building.jpg", ColorRGBA.Gray, GridCalculator.calculateCenter(gridPos[0] + 1, gridPos[1] + 1)));
+        obstacleNode.attachChild(shapeBuilder.generateBox("Obstacle", 0.5f, 10.0f, 0.5f, "Common/MatDefs/Light/Lighting.j3md", "Textures/Terrain/Building/Building.jpg", ColorRGBA.Gray, GridCalculator.calculateCenter(gridPos[0] + 1, gridPos[1] + 2)));
+        obstacleNode.attachChild(shapeBuilder.generateBox("Obstacle", 0.5f, 10.0f, 0.5f, "Common/MatDefs/Light/Lighting.j3md", "Textures/Terrain/Building/Building.jpg", ColorRGBA.Gray, GridCalculator.calculateCenter(gridPos[0] - 1, gridPos[1] + 2)));
+        obstacleNode.attachChild(shapeBuilder.generateBox("Obstacle", 0.5f, 10.0f, 0.5f, "Common/MatDefs/Light/Lighting.j3md", "Textures/Terrain/Building/Building.jpg", ColorRGBA.Gray, GridCalculator.calculateCenter(gridPos[0] - 1, gridPos[1] + 1)));
+        obstacleNode.attachChild(shapeBuilder.generateBox("Obstacle", 0.5f, 10.0f, 0.5f, "Common/MatDefs/Light/Lighting.j3md", "Textures/Terrain/Building/Building.jpg", ColorRGBA.Gray, GridCalculator.calculateCenter(gridPos[0] + 1, gridPos[1] - 1)));
+        obstacleNode.attachChild(shapeBuilder.generateBox("Obstacle", 0.5f, 10.0f, 0.5f, "Common/MatDefs/Light/Lighting.j3md", "Textures/Terrain/Building/Building.jpg", ColorRGBA.Gray, GridCalculator.calculateCenter(gridPos[0] + 1, gridPos[1] - 2)));
+        obstacleNode.attachChild(shapeBuilder.generateBox("Obstacle", 0.5f, 10.0f, 0.5f, "Common/MatDefs/Light/Lighting.j3md", "Textures/Terrain/Building/Building.jpg", ColorRGBA.Gray, GridCalculator.calculateCenter(gridPos[0] - 1, gridPos[1] - 2)));
+        obstacleNode.attachChild(shapeBuilder.generateBox("Obstacle", 0.5f, 10.0f, 0.5f, "Common/MatDefs/Light/Lighting.j3md", "Textures/Terrain/Building/Building.jpg", ColorRGBA.Gray, GridCalculator.calculateCenter(gridPos[0] - 1, gridPos[1] - 1)));
 
 
     }
