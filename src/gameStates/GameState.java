@@ -34,6 +34,7 @@ import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Quad;
 import com.jme3.system.AppSettings;
 import controls.BaseControll;
+import controls.BulletControl;
 import controls.CreepControl;
 import controls.IGeometryDisposed;
 import controls.TowerControl;
@@ -178,7 +179,7 @@ public class GameState extends AbstractAppState {
     private ActionListener actionListener = new ActionListener() {
         public void onAction(String name, boolean isPressed, float tpf) {
 
-            if (name.equals(MAPPING_BUILD) && !isPressed) {
+            if (name.equals(MAPPING_BUILD) && !isPressed && waveFinished) {
                 ray.setOrigin(cam.getLocation());
                 ray.setDirection(cam.getDirection());
 
@@ -196,6 +197,21 @@ public class GameState extends AbstractAppState {
 
                 }
             }
+            if (name.equals(MAPPING_BUILD) && !isPressed && !waveFinished) {
+                System.out.println("Shooting");
+                ray.setOrigin(cam.getLocation());
+                ray.setDirection(cam.getDirection());
+                CollisionResults colResults = new CollisionResults();
+                creepNode.collideWith(ray, colResults);
+
+                if (colResults.size() > 0) {
+                    Geometry target = colResults.getClosestCollision().getGeometry();
+
+                    Geometry bullet = shapeBuilder.generateBullet("Bullet", 16, 16, 0.5f, null, ColorRGBA.Red, cam.getLocation());
+                    bullet.addControl(new BulletControl(target, 0.5f, 10));
+                    bulletNode.attachChild(bullet);
+                }
+            }
             if (name.equals(MAPPING_ACTION_OBSTACLE)) {
                 action = 1;
             }
@@ -210,6 +226,9 @@ public class GameState extends AbstractAppState {
                 //Might generate 2 waves because of timer task execution that is not stopped immediatelly -> needs to be fixed
                 generateCreepWave();
                 gameStarted = true;
+                timeCounter = 0;
+                timePassed = 0.0f;
+                clearGUINode();
             }
         }
     };
@@ -348,7 +367,7 @@ public class GameState extends AbstractAppState {
             timePassed += tpf;
 
             if (timePassed >= 1.0f) {
-                showMessage("Time to next wave: " + (10 - timeCounter ));
+                showMessage("Time to next wave: " + (10 - timeCounter));
                 timeCounter++;
                 timePassed = 0.0f;
             }
@@ -442,6 +461,7 @@ public class GameState extends AbstractAppState {
         int numberOfCreeps = rnd.nextInt(5) + 6;
         numberOfCreeps *= waveIndex;
 
+        //change to numberOfCreeps
         for (int i = 0; i < numberOfCreeps; i++) {
             generateCreep(i * 250);
         }

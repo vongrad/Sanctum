@@ -111,6 +111,8 @@ public class CreepControl extends AbstractControl implements CreepPathUpdatedLis
             canWalk = true;
         }
     };
+    
+  
 
     public void causeDamage(int damage) {
         this.life -= damage;
