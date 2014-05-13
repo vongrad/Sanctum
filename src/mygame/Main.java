@@ -11,6 +11,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
+import com.jme3.system.AppSettings;
 import org.lwjgl.opengl.Display;
 
 /**
@@ -29,10 +30,9 @@ public class Main extends SimpleApplication {
     public void simpleInitApp() {
         initCrossHairs();
         Display.setVSyncEnabled(true);
-        GameState gameState = new GameState();
+        GameState gameState = new GameState(settings);
         stateManager.attach(gameState);  
         flyCam.setMoveSpeed(30);
-        
         cam.setLocation(new Vector3f(0.0f, 20.0f, 0.0f));
     }
 

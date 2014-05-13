@@ -21,4 +21,9 @@ public class Constants {
     
     public static final int ACTION_TOWER = 1;
     public static final int ACTION_OBSTACLE = 2;
+    
+    public static final String GAME_WIN = "You won the game!";
+    public static final String WAVE_WIN = "You won the wave!";
+    public static final String GAME_LOSS = "You lost the game!";
+    
 }

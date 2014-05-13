@@ -88,7 +88,7 @@ public class TowerControl extends AbstractControl {
 
         if (creepNode.getChildren().size() > 0) {
             if (currentTarget != null) {
-                if (calculateDistance(currentTarget) > range || ((GeometryDisposed) currentTarget.getControl(0)).isDisposed()) {
+                if (calculateDistance(currentTarget) > range || ((IGeometryDisposed) currentTarget.getControl(0)).isDisposed()) {
                     currentTarget = null;
                 }
             } else if (currentTarget == null) {

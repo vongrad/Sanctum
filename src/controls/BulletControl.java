@@ -14,7 +14,7 @@ import com.jme3.scene.control.AbstractControl;
  *
  * @author adamv_000
  */
-public class BulletControl extends AbstractControl implements GeometryDisposed{
+public class BulletControl extends AbstractControl implements IGeometryDisposed{
 
     private Spatial target;
     private float bulletSpeed;
@@ -77,6 +77,6 @@ public class BulletControl extends AbstractControl implements GeometryDisposed{
     
     //For bullets to disappear
     public boolean isTargetDisposed(){
-        return ((GeometryDisposed)target.getControl(0)).isDisposed();
+        return ((IGeometryDisposed)target.getControl(0)).isDisposed();
     }
 }

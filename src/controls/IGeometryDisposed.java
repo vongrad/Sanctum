@@ -8,6 +8,6 @@ package controls;
  *
  * @author adamv_000
  */
-public interface GeometryDisposed {
+public interface IGeometryDisposed {
     public boolean isDisposed();
 }
