@@ -100,7 +100,6 @@ public class CreepControl extends AbstractControl implements CreepPathUpdatedLis
     }
 
     public void setPath(List<Vertex> path) {
-        System.out.println("Scheduling!");
         creepPath = path;
         pathIndex = creepPath.size() - 1;
         timer.schedule(timerTask, delay);
