@@ -4,6 +4,7 @@
  */
 package controls;
 
+import com.jme3.effect.ParticleEmitter;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Ray;
 import com.jme3.math.Vector3f;
@@ -34,8 +35,8 @@ public class TowerControl extends AbstractControl {
     private Spatial currentTarget;
     private ShapeBuilder shapeBuilder;
     private boolean canShoot;
-
-    public TowerControl(Node bulletNode, int damage, long fireSpeed, float range, Node creepNode, ShapeBuilder shapeBuilder) {
+    private ParticleEmitter explosion;
+    public TowerControl(Node bulletNode, int damage, long fireSpeed, float range, Node creepNode, ShapeBuilder shapeBuilder, ParticleEmitter explosion) {
         this.bulletNode = bulletNode;
         canShoot = true;
         this.shapeBuilder = shapeBuilder;
@@ -44,6 +45,7 @@ public class TowerControl extends AbstractControl {
         this.creepNode = creepNode;
         this.range = range;
         this.bulletSpeed = 0.35f;
+        this.explosion = explosion;
         scheduleTimer();
     }
 
@@ -53,7 +55,7 @@ public class TowerControl extends AbstractControl {
         if (currentTarget != null && canShoot) {
             canShoot = false;
             Geometry bullet = shapeBuilder.generateBullet("Bullet", 16, 16, bulletSpeed, null, ColorRGBA.Red, new Vector3f(spatial.getLocalTranslation().getX(), spatial.getLocalTranslation().getY() + 11f, spatial.getLocalTranslation().getZ()));
-            bullet.addControl(new BulletControl(currentTarget, bulletSpeed, damage));
+            bullet.addControl(new BulletControl(currentTarget, bulletSpeed, damage,explosion));
             bulletNode.attachChild(bullet);
         }
         //bulletChecker();

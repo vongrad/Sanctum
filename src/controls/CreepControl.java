@@ -7,6 +7,8 @@ package controls;
 import Listeners.CreepPathUpdatedListener;
 import com.jme3.collision.CollisionResult;
 import com.jme3.collision.CollisionResults;
+import com.jme3.effect.ParticleEmitter;
+import com.jme3.effect.ParticleMesh;
 import com.jme3.math.Ray;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
@@ -15,6 +17,7 @@ import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Node;
 import com.jme3.scene.control.AbstractControl;
 import de.lessvoid.nifty.tools.LinearInterpolator.Point;
+import gameStates.GameState;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -40,7 +43,7 @@ public class CreepControl extends AbstractControl implements CreepPathUpdatedLis
     private long delay;
     private boolean canWalk;
     private int lastTime = 0;
-
+    
     public CreepControl(List<Vertex> creepPath, Camera cam, Node baseNode, Vector3f basePoint, int life, float speed, long delay, int damage) {
         this.delay = delay;
         this.damage = damage;
@@ -55,6 +58,7 @@ public class CreepControl extends AbstractControl implements CreepPathUpdatedLis
         isDeath = false;
         timer = new Timer();
         this.canWalk = false;
+        
     }
 
     public void setCreepPath(List<Vertex> creepPath) {
@@ -118,6 +122,8 @@ public class CreepControl extends AbstractControl implements CreepPathUpdatedLis
 
         if (life <= 0) {
             isDeath = true;
+            GameState.addGold(5);
+            
             System.out.println("Death!");
         } else {
             isDeath = false;

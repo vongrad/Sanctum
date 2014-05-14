@@ -4,9 +4,11 @@
  */
 package controls;
 
+import com.jme3.effect.ParticleEmitter;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
+import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.AbstractControl;
 
@@ -20,12 +22,15 @@ public class BulletControl extends AbstractControl implements IGeometryDisposed{
     private float bulletSpeed;
     private boolean dispose;
     private int damage;
+    private ParticleEmitter explosion;
 
-    public BulletControl(Spatial target, float bulletSpeed, int damage) {
+    public BulletControl(Spatial target, float bulletSpeed, int damage, ParticleEmitter explosion) {
         this.damage = damage;
         this.target = target;
         this.bulletSpeed = bulletSpeed;
+        this.explosion = explosion;
         dispose = false;
+        
     }
 
     @Override
@@ -59,6 +64,10 @@ public class BulletControl extends AbstractControl implements IGeometryDisposed{
             if (sourceVector.getX() > destinationVector.getX() - 0.5f && sourceVector.getX() < destinationVector.getX() + 0.5f
                     && sourceVector.getY() > destinationVector.getY() - 0.5f && sourceVector.getY() < destinationVector.getY() + 0.5f
                     && sourceVector.getZ() > destinationVector.getZ() - 0.5f && sourceVector.getZ() < destinationVector.getZ() + 0.5f) {
+                explosion.setLocalTranslation(target.getLocalTranslation().getX(), target.getLocalTranslation().getY() + 1f, target.getLocalTranslation().getZ());
+                explosion.emitAllParticles();
+                explosion.killAllParticles();
+                
                 ((CreepControl)target.getControl(0)).causeDamage(damage);
                 dispose = true;
                 target = null;
