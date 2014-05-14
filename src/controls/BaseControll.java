@@ -40,4 +40,8 @@ public class BaseControll extends AbstractControl implements IGeometryDisposed, 
             destroyed = true;
         }
     }
+
+    public int getHealth() {
+        return health;
+    }
 }

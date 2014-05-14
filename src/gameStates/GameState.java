@@ -39,6 +39,7 @@ import com.jme3.system.AppSettings;
 import controls.BaseControll;
 import controls.BulletControl;
 import controls.CreepControl;
+import controls.IBase;
 import controls.IGeometryDisposed;
 import controls.TowerControl;
 import de.lessvoid.nifty.effects.impl.Gradient;
@@ -202,11 +203,15 @@ public class GameState extends AbstractAppState {
         initPlatform();
         initBase();
         initSound();
-        addHUDText("gold", String.valueOf(gold), 4, new Vector3f(appSettings.getWidth(), 10f, 0f), ColorRGBA.Yellow);
-        addHUDText("baseHealth", String.valueOf(baseHealth), 4, new Vector3f(10f, 100f, 0f), ColorRGBA.Blue);
-        addHUDText("nextWaveTimer", "", 4, new Vector3f(appSettings.getWidth() / 2, appSettings.getHeight() * 0.66f, 0), ColorRGBA.White);
-        addHUDText("waveOver", "", 4, new Vector3f(appSettings.getWidth() / 2, appSettings.getHeight() * 0.76f, 0), ColorRGBA.White);
+        initHUD();
         //generateCreep();
+    }
+
+    private void initHUD() {
+        addHUDText("gold", "Gold: " + String.valueOf(gold), 1, new Vector3f(appSettings.getWidth() / 4, appSettings.getHeight() * 0.98f, 0f), ColorRGBA.Yellow);
+        addHUDText("baseHealth", "Base Health: " + String.valueOf(baseHealth), 1, new Vector3f(appSettings.getWidth() / 4 * 3, appSettings.getHeight() * 0.98f, 0f), ColorRGBA.Blue);
+        addHUDText("nextWaveTimer", "", 4, new Vector3f(appSettings.getWidth() / 3, appSettings.getHeight() * 0.66f, 0), ColorRGBA.White);
+        addHUDText("waveOver", "", 4, new Vector3f(appSettings.getWidth() / 3, appSettings.getHeight() * 0.76f, 0), ColorRGBA.White);
     }
 
     private void initTriggers() {
@@ -331,7 +336,7 @@ public class GameState extends AbstractAppState {
 
     private void initBase() {
         Geometry base = shapeBuilder.generateBox("Base", 3 * blockSize, 3 * blockSize, 5 * blockSize, "Common/MatDefs/Light/Lighting.j3md", "Textures/Terrain/Wood/wood.jpg", ColorRGBA.Brown, new Vector3f(basePoint.add(new Vector3f(-blockSize * 3f, 3.0f, 0.0f))));
-        base.addControl(new BaseControll(baseHealth));
+        base.addControl(new BaseControll(baseHealth));        
         baseNode.attachChild(base);
     }
 
@@ -345,7 +350,7 @@ public class GameState extends AbstractAppState {
 
     private boolean gridTowerAvailable(int[] gridPos, int rangeX, int rangeY) {
 
-        boolean available = true;
+        boolean available = true; 
 
         for (int i = gridPos[0] - rangeX; i <= gridPos[0] + rangeX; i++) {
             for (int j = gridPos[1] - rangeY; j <= gridPos[1] + rangeY; j++) {
@@ -508,7 +513,7 @@ public class GameState extends AbstractAppState {
                 waveFinished = true;
                 System.out.println("Wave index: " + waveIndex);
                 waveIndex++;
-                ((BitmapText) (app.getGuiNode().getChild("waveOver"))).setText(Constants.GAME_WIN);
+                ((BitmapText) (app.getGuiNode().getChild("waveOver"))).setText(Constants.WAVE_WIN);
                 creepListeners.clear();
                 // timer.scheduleAtFixedRate(timerTask, 0, 31000);
             }
@@ -663,9 +668,9 @@ public class GameState extends AbstractAppState {
     }
 
     public void updateHUD() {
-        ((BitmapText) app.getGuiNode().getChild("gold")).setText(String.valueOf(gold));
-        ((BitmapText) app.getGuiNode().getChild("baseHealth")).setText(String.valueOf(baseHealth));
-
+        baseHealth =  ((IBase)baseNode.getChild("Base").getControl(0)).getHealth();
+        ((BitmapText) app.getGuiNode().getChild("gold")).setText("Gold: " + String.valueOf(gold));         
+        ((BitmapText) app.getGuiNode().getChild("baseHealth")).setText("Base Heath: " + String.valueOf(baseHealth));
 
     }
 

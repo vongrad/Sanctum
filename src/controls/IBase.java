@@ -11,4 +11,5 @@ package controls;
 public interface IBase {
     
     public void causeDamage(int damage);
+    public int getHealth();
 }
