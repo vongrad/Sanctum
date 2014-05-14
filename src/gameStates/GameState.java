@@ -166,7 +166,8 @@ public class GameState extends AbstractAppState {
         this.creepNode = new Node();
         this.pathNode = new Node();
         this.baseNode = new Node();
-
+        this.explosionNode = new Node();
+        
         this.assetManager = this.app.getAssetManager();
         ray = new Ray();
         rootNode.attachChild(creepNode);
@@ -175,7 +176,7 @@ public class GameState extends AbstractAppState {
         rootNode.attachChild(pathNode);
         rootNode.attachChild(bulletNode);
         rootNode.attachChild(baseNode);
-
+        rootNode.attachChild(explosionNode);
 
         //Explosion Textures
         explosion = new ParticleEmitter(
@@ -288,7 +289,7 @@ public class GameState extends AbstractAppState {
                     Geometry target = colResults.getClosestCollision().getGeometry();
 
                     Geometry bullet = shapeBuilder.generateBullet("Bullet", 16, 16, 0.5f, null, ColorRGBA.Red, cam.getLocation());
-                    bullet.addControl(new BulletControl(target, 0.5f, 10, explosion));
+                    bullet.addControl(new BulletControl(target, 0.5f, 10, explosionNode, assetManager));
                     bulletNode.attachChild(bullet);
                 }
             }
@@ -402,7 +403,7 @@ public class GameState extends AbstractAppState {
     private void generateTower(int[] gridPos) {
 
         Geometry tower = shapeBuilder.generateBox("Tower", 0.5f, 12.0f, 0.5f, null, null, ColorRGBA.Green, GridCalculator.calculateCenter(gridPos[0], gridPos[1]));
-        tower.addControl(new TowerControl(bulletNode, 5, 200, 15.0f, creepNode, shapeBuilder, explosion));
+        tower.addControl(new TowerControl(bulletNode, 5, 200, 15.0f, creepNode, shapeBuilder, explosionNode,assetManager));
         towerNode.attachChild(tower);
         obstacleNode.attachChild(shapeBuilder.generateBox("Obstacle", 0.5f, 10.0f, 0.5f, "Common/MatDefs/Light/Lighting.j3md", "Textures/Terrain/Building/Building.jpg", ColorRGBA.Gray, GridCalculator.calculateCenter(gridPos[0], gridPos[1] + 1)));
         obstacleNode.attachChild(shapeBuilder.generateBox("Obstacle", 0.5f, 10.0f, 0.5f, "Common/MatDefs/Light/Lighting.j3md", "Textures/Terrain/Building/Building.jpg", ColorRGBA.Gray, GridCalculator.calculateCenter(gridPos[0], gridPos[1] - 1)));
@@ -419,11 +420,11 @@ public class GameState extends AbstractAppState {
     private void generateTower2(int[] gridPos) {
 
         Geometry tower = shapeBuilder.generateBox("Tower2", 0.5f, 12.0f, 0.5f, null, null, ColorRGBA.Green, GridCalculator.calculateCenter(gridPos[0], gridPos[1] + 1));
-        tower.addControl(new TowerControl(bulletNode, 8, 200, 15.0f, creepNode, shapeBuilder, explosion));
+        tower.addControl(new TowerControl(bulletNode, 8, 200, 15.0f, creepNode, shapeBuilder, explosionNode,assetManager));
         towerNode.attachChild(tower);
 
         tower = shapeBuilder.generateBox("Tower2", 0.5f, 12.0f, 0.5f, null, null, ColorRGBA.Green, GridCalculator.calculateCenter(gridPos[0], gridPos[1] - 1));
-        tower.addControl(new TowerControl(bulletNode, 8, 200, 15.0f, creepNode, shapeBuilder, explosion));
+        tower.addControl(new TowerControl(bulletNode, 8, 200, 15.0f, creepNode, shapeBuilder, explosionNode,assetManager));
         towerNode.attachChild(tower);
 
         obstacleNode.attachChild(shapeBuilder.generateBox("Obstacle", 0.5f, 10.0f, 0.5f, "Common/MatDefs/Light/Lighting.j3md", "Textures/Terrain/Building/Building.jpg", ColorRGBA.Gray, GridCalculator.calculateCenter(gridPos[0], gridPos[1])));
@@ -444,39 +445,39 @@ public class GameState extends AbstractAppState {
     private void generateTower3(int[] gridPos) {
 
         Geometry tower = shapeBuilder.generateBox("Tower3", 0.5f, 12.0f, 0.5f, null, null, ColorRGBA.Green, GridCalculator.calculateCenter(gridPos[0], gridPos[1]));
-        tower.addControl(new TowerControl(bulletNode, 8, 200, 15.0f, creepNode, shapeBuilder, explosion));
+        tower.addControl(new TowerControl(bulletNode, 8, 200, 15.0f, creepNode, shapeBuilder, explosionNode,assetManager));
         towerNode.attachChild(tower);
 
         tower = shapeBuilder.generateBox("Tower3", 0.5f, 12.0f, 0.5f, null, null, ColorRGBA.Green, GridCalculator.calculateCenter(gridPos[0], gridPos[1] - 1));
-        tower.addControl(new TowerControl(bulletNode, 8, 200, 15.0f, creepNode, shapeBuilder, explosion));
+        tower.addControl(new TowerControl(bulletNode, 8, 200, 15.0f, creepNode, shapeBuilder, explosionNode,assetManager));
         towerNode.attachChild(tower);
 
         tower = shapeBuilder.generateBox("Tower3", 0.5f, 12.0f, 0.5f, null, null, ColorRGBA.Green, GridCalculator.calculateCenter(gridPos[0], gridPos[1] + 1));
-        tower.addControl(new TowerControl(bulletNode, 8, 200, 15.0f, creepNode, shapeBuilder, explosion));
+        tower.addControl(new TowerControl(bulletNode, 8, 200, 15.0f, creepNode, shapeBuilder, explosionNode,assetManager));
         towerNode.attachChild(tower);
 
         tower = shapeBuilder.generateBox("Tower3", 0.5f, 12.0f, 0.5f, null, null, ColorRGBA.Green, GridCalculator.calculateCenter(gridPos[0] + 1, gridPos[1] + 1));
-        tower.addControl(new TowerControl(bulletNode, 8, 200, 15.0f, creepNode, shapeBuilder, explosion));
+        tower.addControl(new TowerControl(bulletNode, 8, 200, 15.0f, creepNode, shapeBuilder, explosionNode,assetManager));
         towerNode.attachChild(tower);
 
         tower = shapeBuilder.generateBox("Tower3", 0.5f, 12.0f, 0.5f, null, null, ColorRGBA.Green, GridCalculator.calculateCenter(gridPos[0] + 1, gridPos[1] - 1));
-        tower.addControl(new TowerControl(bulletNode, 8, 200, 15.0f, creepNode, shapeBuilder, explosion));
+        tower.addControl(new TowerControl(bulletNode, 8, 200, 15.0f, creepNode, shapeBuilder, explosionNode,assetManager));
         towerNode.attachChild(tower);
 
         tower = shapeBuilder.generateBox("Tower3", 0.5f, 12.0f, 0.5f, null, null, ColorRGBA.Green, GridCalculator.calculateCenter(gridPos[0] - 1, gridPos[1] - 1));
-        tower.addControl(new TowerControl(bulletNode, 8, 200, 15.0f, creepNode, shapeBuilder, explosion));
+        tower.addControl(new TowerControl(bulletNode, 8, 200, 15.0f, creepNode, shapeBuilder, explosionNode,assetManager));
         towerNode.attachChild(tower);
 
         tower = shapeBuilder.generateBox("Tower3", 0.5f, 12.0f, 0.5f, null, null, ColorRGBA.Green, GridCalculator.calculateCenter(gridPos[0] - 1, gridPos[1] + 1));
-        tower.addControl(new TowerControl(bulletNode, 8, 200, 15.0f, creepNode, shapeBuilder, explosion));
+        tower.addControl(new TowerControl(bulletNode, 8, 200, 15.0f, creepNode, shapeBuilder, explosionNode,assetManager));
         towerNode.attachChild(tower);
 
         tower = shapeBuilder.generateBox("Tower3", 0.5f, 12.0f, 0.5f, null, null, ColorRGBA.Green, GridCalculator.calculateCenter(gridPos[0] + 1, gridPos[1]));
-        tower.addControl(new TowerControl(bulletNode, 8, 200, 15.0f, creepNode, shapeBuilder, explosion));
+        tower.addControl(new TowerControl(bulletNode, 8, 200, 15.0f, creepNode, shapeBuilder, explosionNode,assetManager));
         towerNode.attachChild(tower);
 
         tower = shapeBuilder.generateBox("Tower3", 0.5f, 12.0f, 0.5f, null, null, ColorRGBA.Green, GridCalculator.calculateCenter(gridPos[0] - 1, gridPos[1]));
-        tower.addControl(new TowerControl(bulletNode, 8, 200, 15.0f, creepNode, shapeBuilder, explosion));
+        tower.addControl(new TowerControl(bulletNode, 8, 200, 15.0f, creepNode, shapeBuilder, explosionNode,assetManager));
         towerNode.attachChild(tower);
 
         obstacleNode.attachChild(shapeBuilder.generateBox("Obstacle", 0.5f, 10.0f, 0.5f, "Common/MatDefs/Light/Lighting.j3md", "Textures/Terrain/Building/Building.jpg", ColorRGBA.Gray, GridCalculator.calculateCenter(gridPos[0] + 2, gridPos[1])));
