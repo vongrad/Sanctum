@@ -49,6 +49,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.w3c.dom.css.RGBColor;
 import pathfinder.Constants;
 import pathfinder.Graph;
 import pathfinder.PathFinder;
@@ -201,6 +202,10 @@ public class GameState extends AbstractAppState {
         initPlatform();
         initBase();
         initSound();
+        addHUDText("gold", String.valueOf(gold), 4, new Vector3f(appSettings.getWidth(), 10f, 0f), ColorRGBA.Yellow);
+        addHUDText("baseHealth", String.valueOf(baseHealth), 4, new Vector3f(10f, 100f, 0f), ColorRGBA.Blue);
+        addHUDText("nextWaveTimer", "", 4, new Vector3f(appSettings.getWidth() / 2, appSettings.getHeight() * 0.66f, 0), ColorRGBA.White);
+        addHUDText("waveOver", "", 4, new Vector3f(appSettings.getWidth() / 2, appSettings.getHeight() * 0.76f, 0), ColorRGBA.White);
         //generateCreep();
     }
 
@@ -229,30 +234,30 @@ public class GameState extends AbstractAppState {
                         if (gold >= priceObstacle) {
                             takeGold(priceObstacle);
                             obstacleNode.attachChild(shapeBuilder.generateBox("Obscale", 0.5f, 10f, 0.5f, "Common/MatDefs/Light/Lighting.j3md", "Textures/Terrain/Rock/bricks.jpg", ColorRGBA.Yellow, GridCalculator.calculateCenter(grid[0], grid[1])));
-                        }else{
-                          notEnoughGold.playInstance();
+                        } else {
+                            notEnoughGold.playInstance();
                         }
                     } else if (action == 2 && gridTowerAvailable(grid, 1, 1)) {
                         if (gold >= priceTower1) {
                             takeGold(priceTower1);
                             generateTower(grid);
-                        }else{
-                          notEnoughGold.playInstance();
+                        } else {
+                            notEnoughGold.playInstance();
                         }
                     } else if (action == 3 && gridTowerAvailable(grid, 1, 2)) {
                         if (gold >= priceTower2) {
                             takeGold(priceTower2);
                             generateTower2(grid);
-                        }else{
-                          notEnoughGold.playInstance();
+                        } else {
+                            notEnoughGold.playInstance();
                         }
 
                     } else if (action == 4 && gridTowerAvailable(grid, 2, 2)) {
                         if (gold >= priceTower3) {
                             takeGold(priceTower3);
                             generateTower3(grid);
-                        }else{
-                          notEnoughGold.playInstance();
+                        } else {
+                            notEnoughGold.playInstance();
                         }
                     }
 
@@ -303,7 +308,7 @@ public class GameState extends AbstractAppState {
                 gameStarted = true;
                 timeCounter = 0;
                 timePassed = 0.0f;
-                clearGUINode();
+//                app.getGuiNode().getChild("startWave").removeFromParent();
             }
         }
     };
@@ -329,12 +334,13 @@ public class GameState extends AbstractAppState {
         base.addControl(new BaseControll(baseHealth));
         baseNode.attachChild(base);
     }
-    private void initSound(){
+
+    private void initSound() {
         notEnoughGold = new AudioNode(assetManager, "Sounds/Effects/Not_Enough_Gold.wav", false);
         notEnoughGold.setPositional(false);
-    notEnoughGold.setLooping(false);
-    notEnoughGold.setVolume(2);
-    rootNode.attachChild(notEnoughGold);
+        notEnoughGold.setLooping(false);
+        notEnoughGold.setVolume(2);
+        rootNode.attachChild(notEnoughGold);
     }
 
     private boolean gridTowerAvailable(int[] gridPos, int rangeX, int rangeY) {
@@ -502,7 +508,7 @@ public class GameState extends AbstractAppState {
                 waveFinished = true;
                 System.out.println("Wave index: " + waveIndex);
                 waveIndex++;
-                showMessage(Constants.WAVE_WIN);
+                ((BitmapText) (app.getGuiNode().getChild("waveOver"))).setText(Constants.GAME_WIN);
                 creepListeners.clear();
                 // timer.scheduleAtFixedRate(timerTask, 0, 31000);
             }
@@ -512,6 +518,7 @@ public class GameState extends AbstractAppState {
     @Override
     public void update(float tpf) {
         disposeGeometries();
+        updateHUD();
         //Draw path
         if (creepPath != null && first) {
             first = false;
@@ -529,15 +536,14 @@ public class GameState extends AbstractAppState {
         if (gameStarted && waveFinished) {
 
             timePassed += tpf;
-
+            ((BitmapText) app.getGuiNode().getChild("nextWaveTimer")).setText("Time to next wave: " + String.valueOf(10 - timeCounter));
             if (timePassed >= 1.0f) {
-                showMessage("Time to next wave: " + (10 - timeCounter));
                 timeCounter++;
                 timePassed = 0.0f;
             }
 
             if (timeCounter - 1 == 10) {
-                clearGUINode();
+                ((BitmapText) app.getGuiNode().getChild("nextWaveTimer")).setText("");
                 timeCounter = 0;
                 timePassed = 0.0f;
                 waveFinished = false;
@@ -556,7 +562,7 @@ public class GameState extends AbstractAppState {
 
     private void destroyGame(boolean win) {
         gameStarted = false;
-        showMessage(win == true ? Constants.GAME_WIN : Constants.GAME_LOSS);
+        addHUDText("gameOver", win == true ? Constants.GAME_WIN : Constants.GAME_LOSS, 4, new Vector3f(appSettings.getWidth() / 2, appSettings.getHeight() * 0.66f, 0), ColorRGBA.White);
         app.getInputManager().clearMappings();
     }
 
@@ -623,14 +629,14 @@ public class GameState extends AbstractAppState {
 //    }
     //Probably not the best solution, we gotta ask Tobias...
     private void generateCreepWave() {
-
+        ((BitmapText) app.getGuiNode().getChild("waveOver")).setText("");
         Random rnd = new Random();
         int numberOfCreeps = rnd.nextInt(5) + 6;
         numberOfCreeps *= waveIndex;
 
         //change to numberOfCreeps
         for (int i = 0; i < numberOfCreeps; i++) {
-            generateCreep(i * 250);
+            generateCreep(i * 750);
         }
     }
 
@@ -656,16 +662,27 @@ public class GameState extends AbstractAppState {
         return false;
     }
 
-    private void showMessage(String message) {
-        app.setDisplayStatView(false);
+    public void updateHUD() {
+        ((BitmapText) app.getGuiNode().getChild("gold")).setText(String.valueOf(gold));
+        ((BitmapText) app.getGuiNode().getChild("baseHealth")).setText(String.valueOf(baseHealth));
+
+
+    }
+
+    private void addHUDText(String name, String text, int size, Vector3f position, ColorRGBA color) {
+//        app.setDisplayStatView(false);
         BitmapFont font = assetManager.loadFont("Interface/Fonts/Default.fnt");
         BitmapText bmpText = new BitmapText(font, false);
-        bmpText.setSize(font.getCharSet().getRenderedSize() * 4);
-        bmpText.setText(message);
-        bmpText.setLocalTranslation(new Vector3f(appSettings.getWidth() / 2 - bmpText.getLineWidth() / 2, appSettings.getHeight() * 0.66f - bmpText.getLineHeight() / 2, 0));
+        bmpText.setColor(color);
+        bmpText.setName(name);
+        bmpText.setSize(font.getCharSet().getRenderedSize() * size);
+        bmpText.setText(text);
+        position.x = position.x - bmpText.getLineWidth();
+        bmpText.setLocalTranslation(position);
+//        bmpText.setLocalTranslation(new Vector3f(appSettings.getWidth() / 2 - bmpText.getLineWidth() / 2, appSettings.getHeight() * 0.66f - bmpText.getLineHeight() / 2, 0));
 
-        clearGUINode();
         app.getGuiNode().attachChild(bmpText);
+
     }
 
     //Clear GUI node except crosshair
