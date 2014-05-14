@@ -212,6 +212,12 @@ public class GameState extends AbstractAppState {
         addHUDText("baseHealth", "Base Health: " + String.valueOf(baseHealth), 1, new Vector3f(appSettings.getWidth() / 4 * 3, appSettings.getHeight() * 0.98f, 0f), ColorRGBA.Blue);
         addHUDText("nextWaveTimer", "", 4, new Vector3f(appSettings.getWidth() / 3, appSettings.getHeight() * 0.66f, 0), ColorRGBA.White);
         addHUDText("waveOver", "", 4, new Vector3f(appSettings.getWidth() / 3, appSettings.getHeight() * 0.76f, 0), ColorRGBA.White);
+        addHUDText("", "Tower Prices:", 1, new Vector3f(10, appSettings.getHeight() * 0.75f, 0), ColorRGBA.White);
+        addHUDText("obstacle", "Obstacle - 5g", 1, new Vector3f(10, appSettings.getHeight() * 0.70f, 0), ColorRGBA.White);
+        addHUDText("t1", "Tower 1 - 15g", 1, new Vector3f(10, appSettings.getHeight() * 0.65f, 0), ColorRGBA.White);
+        addHUDText("t2", "Tower 2 - 25g", 1, new Vector3f(10, appSettings.getHeight() * 0.60f, 0), ColorRGBA.White);
+        addHUDText("t3", "Tower 3 - 100g", 1, new Vector3f(10, appSettings.getHeight() * 0.55f, 0), ColorRGBA.White);
+
     }
 
     private void initTriggers() {
@@ -289,16 +295,32 @@ public class GameState extends AbstractAppState {
 
             if (name.equals(MAPPING_ACTION_OBSTACLE)) {
                 action = 1;
+                ((BitmapText) app.getGuiNode().getChild("obstacle")).setColor(ColorRGBA.Blue);
+                ((BitmapText) app.getGuiNode().getChild("t1")).setColor(ColorRGBA.White);
+                ((BitmapText) app.getGuiNode().getChild("t2")).setColor(ColorRGBA.White);
+                ((BitmapText) app.getGuiNode().getChild("t3")).setColor(ColorRGBA.White);
             }
 
             if (name.equals(MAPPING_ACTION_TOWER)) {
                 action = 2;
+                ((BitmapText) app.getGuiNode().getChild("obstacle")).setColor(ColorRGBA.White);
+                ((BitmapText) app.getGuiNode().getChild("t1")).setColor(ColorRGBA.Blue);
+                ((BitmapText) app.getGuiNode().getChild("t2")).setColor(ColorRGBA.White);
+                ((BitmapText) app.getGuiNode().getChild("t3")).setColor(ColorRGBA.White);
             }
 
             if (name.equals(MAPPING_ACTION_TOWER2)) {
+                ((BitmapText) app.getGuiNode().getChild("obstacle")).setColor(ColorRGBA.White);
+                ((BitmapText) app.getGuiNode().getChild("t1")).setColor(ColorRGBA.White);
+                ((BitmapText) app.getGuiNode().getChild("t2")).setColor(ColorRGBA.Blue);
+                ((BitmapText) app.getGuiNode().getChild("t3")).setColor(ColorRGBA.White);
                 action = 3;
             }
             if (name.equals(MAPPING_ACTION_TOWER3)) {
+                ((BitmapText) app.getGuiNode().getChild("obstacle")).setColor(ColorRGBA.White);
+                ((BitmapText) app.getGuiNode().getChild("t1")).setColor(ColorRGBA.White);
+                ((BitmapText) app.getGuiNode().getChild("t2")).setColor(ColorRGBA.White);
+                ((BitmapText) app.getGuiNode().getChild("t3")).setColor(ColorRGBA.Blue);
                 action = 4;
             }
 
@@ -336,7 +358,7 @@ public class GameState extends AbstractAppState {
 
     private void initBase() {
         Geometry base = shapeBuilder.generateBox("Base", 3 * blockSize, 3 * blockSize, 5 * blockSize, "Common/MatDefs/Light/Lighting.j3md", "Textures/Terrain/Wood/wood.jpg", ColorRGBA.Brown, new Vector3f(basePoint.add(new Vector3f(-blockSize * 3f, 3.0f, 0.0f))));
-        base.addControl(new BaseControll(baseHealth));        
+        base.addControl(new BaseControll(baseHealth));
         baseNode.attachChild(base);
     }
 
@@ -350,7 +372,7 @@ public class GameState extends AbstractAppState {
 
     private boolean gridTowerAvailable(int[] gridPos, int rangeX, int rangeY) {
 
-        boolean available = true; 
+        boolean available = true;
 
         for (int i = gridPos[0] - rangeX; i <= gridPos[0] + rangeX; i++) {
             for (int j = gridPos[1] - rangeY; j <= gridPos[1] + rangeY; j++) {
@@ -668,26 +690,21 @@ public class GameState extends AbstractAppState {
     }
 
     public void updateHUD() {
-        baseHealth =  ((IBase)baseNode.getChild("Base").getControl(0)).getHealth();
-        ((BitmapText) app.getGuiNode().getChild("gold")).setText("Gold: " + String.valueOf(gold));         
+        baseHealth = ((IBase) baseNode.getChild("Base").getControl(0)).getHealth();
+        ((BitmapText) app.getGuiNode().getChild("gold")).setText("Gold: " + String.valueOf(gold));
         ((BitmapText) app.getGuiNode().getChild("baseHealth")).setText("Base Heath: " + String.valueOf(baseHealth));
 
     }
 
     private void addHUDText(String name, String text, int size, Vector3f position, ColorRGBA color) {
-//        app.setDisplayStatView(false);
         BitmapFont font = assetManager.loadFont("Interface/Fonts/Default.fnt");
         BitmapText bmpText = new BitmapText(font, false);
         bmpText.setColor(color);
         bmpText.setName(name);
         bmpText.setSize(font.getCharSet().getRenderedSize() * size);
         bmpText.setText(text);
-        position.x = position.x - bmpText.getLineWidth();
         bmpText.setLocalTranslation(position);
-//        bmpText.setLocalTranslation(new Vector3f(appSettings.getWidth() / 2 - bmpText.getLineWidth() / 2, appSettings.getHeight() * 0.66f - bmpText.getLineHeight() / 2, 0));
-
         app.getGuiNode().attachChild(bmpText);
-
     }
 
     //Clear GUI node except crosshair
