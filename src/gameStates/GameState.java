@@ -95,12 +95,15 @@ public class GameState extends AbstractAppState {
     private static final Trigger TRIGGER_ACTION_TOWER2 = new KeyTrigger(KeyInput.KEY_3);
     private static final Trigger TRIGGER_ACTION_TOWER3 = new KeyTrigger(KeyInput.KEY_4);
     private static final Trigger TRIGGER_START_WAVE = new KeyTrigger(KeyInput.KEY_F1);
+    private static final Trigger TRIGGER_QUIT = new KeyTrigger(KeyInput.KEY_ESCAPE);
+    
     private static final String MAPPING_BUILD = "Build";
     private static final String MAPPING_ACTION_OBSTACLE = "Action_Obstacle";
     private static final String MAPPING_ACTION_TOWER = "Action_Tower";
     private static final String MAPPING_ACTION_TOWER2 = "Action_Tower2";
     private static final String MAPPING_ACTION_TOWER3 = "Action_Tower3";
     private static final String MAPPING_START_WAVE = "Start_Wave";
+    private static final String MAPPING_QUIT = "Quit";
     private int action;
     private boolean first = true;
     private int waveIndex;
@@ -228,6 +231,8 @@ public class GameState extends AbstractAppState {
         app.getInputManager().addMapping(MAPPING_ACTION_TOWER2, TRIGGER_ACTION_TOWER2);
         app.getInputManager().addMapping(MAPPING_ACTION_TOWER3, TRIGGER_ACTION_TOWER3);
         app.getInputManager().addMapping(MAPPING_START_WAVE, TRIGGER_START_WAVE);
+        app.getInputManager().addMapping(MAPPING_QUIT, TRIGGER_QUIT);
+        
         app.getInputManager().addListener(actionListener, new String[]{MAPPING_BUILD, MAPPING_ACTION_OBSTACLE, MAPPING_ACTION_TOWER, MAPPING_START_WAVE, MAPPING_ACTION_TOWER2, MAPPING_ACTION_TOWER3});
     }
     private ActionListener actionListener = new ActionListener() {
@@ -337,6 +342,9 @@ public class GameState extends AbstractAppState {
                 timeCounter = 0;
                 timePassed = 0.0f;
 //                app.getGuiNode().getChild("startWave").removeFromParent();
+            }
+            if(name.equals(MAPPING_QUIT)){
+                app.stop();
             }
         }
     };
@@ -547,6 +555,7 @@ public class GameState extends AbstractAppState {
     public void update(float tpf) {
         disposeGeometries();
         updateHUD();
+        
         //Draw path
         if (creepPath != null && first) {
             first = false;
@@ -590,7 +599,9 @@ public class GameState extends AbstractAppState {
 
     private void destroyGame(boolean win) {
         gameStarted = false;
-        addHUDText("gameOver", win == true ? Constants.GAME_WIN : Constants.GAME_LOSS, 4, new Vector3f(appSettings.getWidth() / 2, appSettings.getHeight() * 0.66f, 0), ColorRGBA.White);
+        ((BitmapText) app.getGuiNode().getChild("waveOver")).setText("");
+        ((BitmapText) app.getGuiNode().getChild("nextWaveTimer")).setText("");
+        addHUDText("gameOver", win == true ? Constants.GAME_WIN : Constants.GAME_LOSS, 4, new Vector3f(appSettings.getWidth() / 3, appSettings.getHeight() * 0.66f, 0), ColorRGBA.White);
         app.getInputManager().clearMappings();
     }
 
