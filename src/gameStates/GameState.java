@@ -288,7 +288,7 @@ public class GameState extends AbstractAppState {
                 if (colResults.size() > 0) {
                     Geometry target = colResults.getClosestCollision().getGeometry();
 
-                    Geometry bullet = shapeBuilder.generateBullet("Bullet", 16, 16, 0.5f, null, ColorRGBA.Red, cam.getLocation());
+                    Geometry bullet = shapeBuilder.generateBullet("Bullet", 16, 16, 0.5f, "Common/MatDefs/Light/Lighting.j3md", ColorRGBA.White, cam.getLocation());
                     bullet.addControl(new BulletControl(target, 0.5f, 10, explosionNode, assetManager));
                     bulletNode.attachChild(bullet);
                 }

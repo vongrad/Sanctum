@@ -4,6 +4,7 @@
  */
 package controls;
 
+import com.jme3.asset.AssetManager;
 import com.jme3.effect.ParticleEmitter;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Ray;
@@ -35,8 +36,10 @@ public class TowerControl extends AbstractControl {
     private Spatial currentTarget;
     private ShapeBuilder shapeBuilder;
     private boolean canShoot;
-    private ParticleEmitter explosion;
-    public TowerControl(Node bulletNode, int damage, long fireSpeed, float range, Node creepNode, ShapeBuilder shapeBuilder, ParticleEmitter explosion) {
+    private Node explosionNode;
+    private AssetManager assetManager;
+    
+    public TowerControl(Node bulletNode, int damage, long fireSpeed, float range, Node creepNode, ShapeBuilder shapeBuilder, Node explosionNode, AssetManager assetManager) {
         this.bulletNode = bulletNode;
         canShoot = true;
         this.shapeBuilder = shapeBuilder;
@@ -45,7 +48,8 @@ public class TowerControl extends AbstractControl {
         this.creepNode = creepNode;
         this.range = range;
         this.bulletSpeed = 0.35f;
-        this.explosion = explosion;
+        this.explosionNode = explosionNode;
+        this.assetManager = assetManager;
         scheduleTimer();
     }
 
@@ -54,8 +58,8 @@ public class TowerControl extends AbstractControl {
         getCreepInRange();
         if (currentTarget != null && canShoot) {
             canShoot = false;
-            Geometry bullet = shapeBuilder.generateBullet("Bullet", 16, 16, bulletSpeed, null, ColorRGBA.Red, new Vector3f(spatial.getLocalTranslation().getX(), spatial.getLocalTranslation().getY() + 11f, spatial.getLocalTranslation().getZ()));
-            bullet.addControl(new BulletControl(currentTarget, bulletSpeed, damage,explosion));
+            Geometry bullet = shapeBuilder.generateBullet("Bullet", 16, 16, bulletSpeed, "Common/MatDefs/Light/Lighting.j3md", ColorRGBA.White, new Vector3f(spatial.getLocalTranslation().getX(), spatial.getLocalTranslation().getY() + 11f, spatial.getLocalTranslation().getZ()));
+            bullet.addControl(new BulletControl(currentTarget, bulletSpeed, damage,explosionNode,assetManager));
             bulletNode.attachChild(bullet);
         }
         //bulletChecker();

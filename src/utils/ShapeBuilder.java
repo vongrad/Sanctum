@@ -56,18 +56,26 @@ public class ShapeBuilder {
     public Geometry generateBullet(String name, int zSamples, int radialSamples, float radius, String matPath, ColorRGBA color, Vector3f pos) {
         Sphere sphere = new Sphere(zSamples, radialSamples, radius);
         Geometry geom = new Geometry(name, sphere);
-
+        sphere.setTextureMode(Sphere.TextureMode.Projected);
+        TangentBinormalGenerator.generate(sphere);
+        
         Material mat;
 
         if (matPath == null) {
             mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+           
         } else {
             mat = new Material(assetManager, matPath);
+            mat.setTexture("DiffuseMap", assetManager.loadTexture("Textures/Terrain/Rock/Pond.jpg"));
+            mat.setTexture("NormalMap", assetManager.loadTexture("Textures/Terrain/Rock/Pond_normal.png"));
+            mat.setBoolean("UseMaterialColors",true);
         }
-
+        
         if (color != null) {
-            mat.setColor("Color", color);
+            mat.setColor("Diffuse", color);
+            mat.setColor("Specular",color);
         }
+        mat.setFloat("Shininess", 64f);
         geom.setMaterial(mat);
         geom.setLocalTranslation(pos);
         return geom;
