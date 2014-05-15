@@ -181,23 +181,7 @@ public class GameState extends AbstractAppState {
         rootNode.attachChild(baseNode);
         rootNode.attachChild(explosionNode);
 
-        //Explosion Textures
-        explosion = new ParticleEmitter(
-                "My explosion effect", ParticleMesh.Type.Triangle, 30);
-        explosion.setStartSize(2f);
-        explosion.setEndSize(5f);
-        Material flash_mat = new Material(
-                assetManager, "Common/MatDefs/Misc/Particle.j3md");
-        flash_mat.setTexture("Texture",
-                assetManager.loadTexture("Effects/Explosion/flash.png"));
-        explosion.setMaterial(flash_mat);
-        explosion.setImagesX(2); // columns
-        explosion.setImagesY(2); // rows
-        explosion.setSelectRandomImage(true);
-        explosion.setStartColor(new ColorRGBA(1f, 0f, 0f, 1f));   // red
-        explosion.setEndColor(new ColorRGBA(1f, 1f, 0f, 0.5f)); // yellow
-        rootNode.attachChild(explosion);
-        //
+       
         shapeBuilder = new ShapeBuilder(assetManager);
 
         gold = 100;
